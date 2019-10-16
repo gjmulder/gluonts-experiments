@@ -24,21 +24,21 @@ from gluonts.dataset.repository.datasets import get_dataset
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
-from gluonts.model.seq2seq import MQCNNEstimator
+#from gluonts.model.seq2seq import MQCNNEstimator
 from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 
 datasets = [
-    "m4_hourly",
+#    "m4_hourly",
     "m4_daily",
-    "m4_weekly",
-    "m4_monthly",
-    "m4_quarterly",
-    "m4_yearly",
+#    "m4_weekly",
+#    "m4_monthly",
+#    "m4_quarterly",
+#    "m4_yearly",
 ]
 
-epochs = 100
-num_batches_per_epoch = 50
+epochs = 1000
+num_batches_per_epoch = 200
 
 estimators = [
     partial(
@@ -101,11 +101,11 @@ if __name__ == "__main__":
     results = []
     for dataset_name in datasets:
         for estimator in estimators:
-            # catch exceptions that are happening during training to avoid failing the whole evaluation
-            try:
-                results.append(evaluate(dataset_name, estimator))
-            except Exception as e:
-                print(str(e))
+#            # catch exceptions that are happening during training to avoid failing the whole evaluation
+#            try:
+            results.append(evaluate(dataset_name, estimator))
+#            except Exception as e:
+#                print(str(e))
 
     df = pd.DataFrame(results)
 

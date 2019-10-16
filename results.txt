@@ -1,0 +1,15 @@
+Baseline:
+
+      dataset        estimator         RMSE  mean_wQuantileLoss      MASE     sMAPE       MSIS
+0   m4_hourly  DeepAREstimator  5548.907061            0.106522  5.528587  0.175047  47.670987
+1   m4_hourly   MQCNNEstimator          NaN            0.048531  4.853860  0.200539  41.779368
+2    m4_daily  DeepAREstimator   653.625844            0.028091  4.228566  0.039285  69.047442
+3    m4_daily   MQCNNEstimator          NaN            0.030651  4.368212  0.038393  69.191802
+4   m4_weekly  DeepAREstimator   575.997522            0.048536  2.981783  0.076666  29.691143
+5   m4_weekly   MQCNNEstimator          NaN            0.058260  3.146382  0.095475  39.034845
+6  m4_monthly  DeepAREstimator  1407.861207            0.110283  1.115486  0.138873  17.761944
+7  m4_monthly   MQCNNEstimator          NaN            0.122725  1.174362  0.144410  30.396261
+
+epochs = 1000, num_batches_per_epoch = 200:
+
+
