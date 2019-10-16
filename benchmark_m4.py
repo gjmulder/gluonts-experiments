@@ -29,15 +29,15 @@ from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 
 datasets = [
-#    "m4_hourly",
+    "m4_hourly",
     "m4_daily",
-#    "m4_weekly",
-#    "m4_monthly",
-#    "m4_quarterly",
-#    "m4_yearly",
+    "m4_weekly",
+    "m4_monthly",
+    "m4_quarterly",
+    "m4_yearly",
 ]
 
-epochs = 100
+epochs = 1000
 num_batches_per_epoch = 50
 
 estimators = [
