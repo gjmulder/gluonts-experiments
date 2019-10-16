@@ -37,8 +37,8 @@ datasets = [
     "m4_yearly",
 ]
 
-epochs = 100
-num_batches_per_epoch = 50
+epochs = 1000
+num_batches_per_epoch = 200
 
 estimators = [
     partial(
