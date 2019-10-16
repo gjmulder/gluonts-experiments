@@ -60,12 +60,12 @@ estimators = [
 #            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
 #        ),
 #    ),
-    partial(
-        MQCNNEstimator,
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
+#    partial(
+#        MQCNNEstimator,
+#        trainer=Trainer(
+#            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#        ),
+#    ),
 ]
 
 
