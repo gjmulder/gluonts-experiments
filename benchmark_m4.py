@@ -25,7 +25,7 @@ from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
 #from gluonts.model.seq2seq import MQCNNEstimator
-from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 
 datasets = [
@@ -37,8 +37,8 @@ datasets = [
     "m4_yearly",
 ]
 
-epochs = 1000
-num_batches_per_epoch = 50
+epochs = 2000
+num_batches_per_epoch = 100
 
 estimators = [
 #    partial(
