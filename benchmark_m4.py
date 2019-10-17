@@ -41,12 +41,12 @@ epochs = 1000
 num_batches_per_epoch = 50
 
 estimators = [
-    partial(
-        SimpleFeedForwardEstimator,
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
+#    partial(
+#        SimpleFeedForwardEstimator,
+#        trainer=Trainer(
+#            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#        ),
+#    ),
     partial(
         DeepAREstimator,
         trainer=Trainer(
