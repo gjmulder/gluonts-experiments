@@ -16,6 +16,7 @@ This example shows how to fit a model and evaluate its predictions.
 """
 import pprint
 from functools import partial
+from sys import exc_info
 
 import pandas as pd
 
@@ -31,8 +32,8 @@ from gluonts.trainer import Trainer
 datasets = [
     "m4_hourly",
     "m4_daily",
-#    "m4_weekly",
-#    "m4_monthly",
+    "m4_weekly",
+    "m4_monthly",
     "m4_quarterly",
     "m4_yearly",
 ]
@@ -102,10 +103,10 @@ if __name__ == "__main__":
     for dataset_name in datasets:
         for estimator in estimators:
             # catch exceptions that are happening during training to avoid failing the whole evaluation
-#            try:
-            results.append(evaluate(dataset_name, estimator))
-#            except Exception as e:
-#                print(str(e))
+            try:
+                results.append(evaluate(dataset_name, estimator))
+            except Exception as e:
+                print('Warning on line %d, exception:\n%s' % (exc_info()[-1].tb_lineno, str(e)))
 
     df = pd.DataFrame(results)
 
