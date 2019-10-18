@@ -37,7 +37,7 @@ datasets = [
     "m4_yearly",
 ]
 
-epochs = 100
+epochs = 10
 num_batches_per_epoch = 50
 
 estimators = [
@@ -76,7 +76,7 @@ def evaluate(dataset_name, estimator):
         freq=dataset.metadata.freq,
     )
 
-    print(f"evaluating {estimator} on {dataset}")
+    print(f"\nevaluating {estimator} on {dataset_name}")
 
     predictor = estimator.train(dataset.train)
 
