@@ -31,8 +31,8 @@ from gluonts.trainer import Trainer
 datasets = [
     "m4_hourly",
     "m4_daily",
-    "m4_weekly",
-    "m4_monthly",
+#    "m4_weekly",
+#    "m4_monthly",
     "m4_quarterly",
     "m4_yearly",
 ]
@@ -102,10 +102,10 @@ if __name__ == "__main__":
     for dataset_name in datasets:
         for estimator in estimators:
             # catch exceptions that are happening during training to avoid failing the whole evaluation
-            try:
-                results.append(evaluate(dataset_name, estimator))
-            except Exception as e:
-                print(str(e))
+#            try:
+            results.append(evaluate(dataset_name, estimator))
+#            except Exception as e:
+#                print(str(e))
 
     df = pd.DataFrame(results)
 
