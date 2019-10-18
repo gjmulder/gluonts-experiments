@@ -25,8 +25,8 @@ from gluonts.dataset.repository.datasets import get_dataset
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
-from gluonts.model.seq2seq import MQCNNEstimator
-from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+#from gluonts.model.seq2seq import MQCNNEstimator
+#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 
 datasets = [
@@ -42,14 +42,16 @@ epochs = 2000
 num_batches_per_epoch = 100
 
 estimators = [
-    partial(
-        SimpleFeedForwardEstimator,
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
+#    partial(
+#        SimpleFeedForwardEstimator,
+#        trainer=Trainer(
+#            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#        ),
+#    ),
     partial(
         DeepAREstimator,
+        num_cells=100,
+        num_layers=1,
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
@@ -61,12 +63,12 @@ estimators = [
 #            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
 #        ),
 #    ),
-    partial(
-        MQCNNEstimator,
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
+#    partial(
+#        MQCNNEstimator,
+#        trainer=Trainer(
+#            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#        ),
+#    ),
 ]
 
 
