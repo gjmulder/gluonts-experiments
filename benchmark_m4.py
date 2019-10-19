@@ -47,6 +47,7 @@ estimators = [
         SimpleFeedForwardEstimator,
         num_hidden_dimensions=[100, 100],
         use_feat_static_cat=use_feat_static_cat,
+        cardinality=[6],
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
@@ -54,6 +55,7 @@ estimators = [
     partial(
         DeepAREstimator,
         use_feat_static_cat=use_feat_static_cat,
+        cardinality=[6],
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
@@ -63,6 +65,7 @@ estimators = [
         num_cells=500,
         num_layers=1,
         use_feat_static_cat=use_feat_static_cat,
+        cardinality=[6],
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
@@ -77,6 +80,7 @@ estimators = [
     partial(
         MQCNNEstimator,
         use_feat_static_cat=use_feat_static_cat,
+        cardinality=[6],
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
