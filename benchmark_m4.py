@@ -40,7 +40,7 @@ datasets = [
 
 epochs = 5000
 num_batches_per_epoch = 100
-use_feat_static_cat = False
+use_feat_static_cat = True
 
 estimators = [
     partial(
