@@ -1,2 +1,22 @@
 Baseline:
 
+07:37:39          dataset                   estimator  MASE     sMAPE
+07:37:39 0      m4_hourly  SimpleFeedForwardEstimator   NaN  2.000000
+07:37:39 1      m4_hourly             DeepAREstimator   NaN  2.000000
+07:37:39 2      m4_hourly              MQCNNEstimator   NaN  1.377826
+07:37:39 3       m4_daily             DeepAREstimator   NaN  2.000000
+07:37:39 4       m4_daily              MQCNNEstimator   NaN  1.993697
+07:37:39 5      m4_weekly  SimpleFeedForwardEstimator   NaN  2.000000
+07:37:39 6      m4_weekly             DeepAREstimator   NaN  2.000000
+07:37:39 7      m4_weekly              MQCNNEstimator   NaN  1.971720
+07:37:39 8     m4_monthly  SimpleFeedForwardEstimator   NaN  2.000000
+07:37:39 9     m4_monthly             DeepAREstimator   NaN  2.000000
+07:37:39 10    m4_monthly              MQCNNEstimator   NaN  1.994186
+07:37:39 11  m4_quarterly  SimpleFeedForwardEstimator   NaN  2.000000
+07:37:39 12  m4_quarterly             DeepAREstimator   NaN  2.000000
+07:37:39 13  m4_quarterly              MQCNNEstimator   NaN  1.981241
+07:37:39 14     m4_yearly  SimpleFeedForwardEstimator   NaN  2.000000
+07:37:39 15     m4_yearly             DeepAREstimator   NaN  2.000000
+07:37:39 16     m4_yearly              MQCNNEstimator   NaN  1.924267
+
+
