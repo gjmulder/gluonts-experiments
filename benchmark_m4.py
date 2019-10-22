@@ -38,7 +38,7 @@ datasets = [
     "m4_yearly",
 ]
 
-epochs = 10000
+epochs = 1000
 num_batches_per_epoch = 50
 use_feat_static_cat = True
 
