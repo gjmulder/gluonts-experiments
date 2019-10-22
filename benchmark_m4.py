@@ -46,8 +46,8 @@ estimators = [
     partial(
         SimpleFeedForwardEstimator,
         num_hidden_dimensions=[100, 100],
-        use_feat_static_cat=use_feat_static_cat,
-        cardinality=[6],
+#        use_feat_static_cat=use_feat_static_cat,
+#        cardinality=[6],
         trainer=Trainer(
             epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
         ),
