@@ -19,4 +19,56 @@ Baseline:
 07:37:39 15     m4_yearly             DeepAREstimator   NaN  2.000000
 07:37:39 16     m4_yearly              MQCNNEstimator   NaN  1.924267
 
+mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/23/log"
+
+     m4_hourly.
+     m4_hourly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      2.01 (occurred at epoch  3573)
+     m4_hourly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      1.58 (occurred at epoch  4422)
+     m4_hourly.
+      m4_daily.
+      m4_daily.             DeepARTrainingNetwork: Size: 13463
+      m4_daily.             DeepARTrainingNetwork: Size:1004023
+      m4_daily.
+     m4_weekly.
+     m4_weekly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      5.52 (occurred at epoch  4907)
+     m4_weekly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      5.35 (occurred at epoch  3771)
+     m4_weekly.
+    m4_monthly.
+    m4_monthly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      4.76 (occurred at epoch  4919)
+    m4_monthly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      4.65 (occurred at epoch  4935)
+    m4_monthly.
+  m4_quarterly.
+  m4_quarterly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      5.91 (occurred at epoch  4802)
+  m4_quarterly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      5.76 (occurred at epoch  4847)
+  m4_quarterly.
+     m4_yearly.
+     m4_yearly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      5.28 (occurred at epoch  4959)
+     m4_yearly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      5.11 (occurred at epoch  3959)
+     m4_yearly.
+mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/25/log"
+
+     m4_hourly.
+     m4_hourly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      2.08 (occurred at epoch  4757)
+     m4_hourly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      1.61 (occurred at epoch  4446)
+     m4_hourly.
+      m4_daily.
+      m4_daily.             DeepARTrainingNetwork: Size: 13563
+      m4_daily.             DeepARTrainingNetwork: Size:1004123
+      m4_daily.
+     m4_weekly.
+     m4_weekly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      5.48 (occurred at epoch  4736)
+     m4_weekly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      5.33 (occurred at epoch  4970)
+     m4_weekly.
+    m4_monthly.
+    m4_monthly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      4.82 (occurred at epoch  4783)
+    m4_monthly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      4.66 (occurred at epoch  4873)
+    m4_monthly.
+  m4_quarterly.
+  m4_quarterly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      5.91 (occurred at epoch  4824)
+  m4_quarterly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      5.76 (occurred at epoch  4713)
+  m4_quarterly.
+     m4_yearly.
+     m4_yearly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      5.26 (occurred at epoch  4515)
+     m4_yearly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      5.09 (occurred at epoch  4499)
+     m4_yearly.
 
