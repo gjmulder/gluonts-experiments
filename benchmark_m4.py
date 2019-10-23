@@ -1,92 +1,35 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License").
-# You may not use this file except in compliance with the License.
-# A copy of the License is located at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# or in the "license" file accompanying this file. This file is distributed
-# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-# express or implied. See the License for the specific language governing
-# permissions and limitations under the License.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Oct 22 11:09:36 2019
 
+@author: mulderg
 """
-This example shows how to fit a model and evaluate its predictions.
-"""
-import pprint
+
+import config
+logger = config.logger
+
 from functools import partial
-from sys import exc_info
+import sys
+from datetime import date
+from numpy import random
+#import pandas as pd
 
-import pandas as pd
+########################################################################################################
 
 from gluonts.dataset.repository.datasets import get_dataset
 #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
-from gluonts.model.seq2seq import MQCNNEstimator
-from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+#from gluonts.model.seq2seq import MQCNNEstimator
+#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
 
-datasets = [
-    "m4_hourly",
-    "m4_daily",
-    "m4_weekly",
-    "m4_monthly",
-    "m4_quarterly",
-    "m4_yearly",
-]
+from hyperopt import fmin, tpe, hp, space_eval, STATUS_FAIL, STATUS_OK
+from hyperopt.mongoexp import MongoTrials
 
-epochs = 1000
-num_batches_per_epoch = 50
-use_feat_static_cat = True
-
-estimators = [
-    partial(
-        SimpleFeedForwardEstimator,
-        num_hidden_dimensions=[100, 100],
-#        use_feat_static_cat=use_feat_static_cat,
-#        cardinality=[6],
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
-    partial(
-        DeepAREstimator,
-        use_feat_static_cat=use_feat_static_cat,
-        cardinality=[6],
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
-    partial(
-        DeepAREstimator,
-        num_cells=500,
-        num_layers=1,
-        use_feat_static_cat=use_feat_static_cat,
-        cardinality=[6],
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
-#    partial(
-#        DeepAREstimator,
-#        distr_output=PiecewiseLinearOutput(8),
-#        trainer=Trainer(
-#            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-#        ),
-#    ),
-    partial(
-        MQCNNEstimator,
-        use_feat_static_cat=use_feat_static_cat,
-        cardinality=[6],
-        trainer=Trainer(
-            epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-        ),
-    ),
-]
-
+########################################################################################################
 
 def evaluate(dataset_name, estimator):
     dataset = get_dataset(dataset_name)
@@ -95,7 +38,7 @@ def evaluate(dataset_name, estimator):
         freq=dataset.metadata.freq,
     )
 
-    print(f"\nevaluating {estimator} on {dataset_name}")
+    logger.info(f"Evaluating {estimator} on {dataset_name}")
 
     predictor = estimator.train(dataset.train)
 
@@ -107,37 +50,100 @@ def evaluate(dataset_name, estimator):
         ts_it, forecast_it, num_series=len(dataset.test)
     )
 
-    pprint.pprint(agg_metrics)
+#    pprint.pprint(agg_metrics)
 
     eval_dict = agg_metrics
     eval_dict["dataset"] = dataset_name
     eval_dict["estimator"] = type(estimator).__name__
     return eval_dict
+    
+def gluon_fcast(cfg):
+    logger.info("Params: %s" % cfg)
+#    use_feat_static_cat = True
+#        partial(
+#            DeepAREstimator,
+#            use_feat_static_cat=use_feat_static_cat,
+#            cardinality=[6],
+#            trainer=Trainer(
+#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#            ),
+#        ),
+#        partial(
+#            DeepAREstimator,
+#            num_cells=500,
+#            num_layers=1,
+#            use_feat_static_cat=use_feat_static_cat,
+#            cardinality=[6],
+#            trainer=Trainer(
+#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#            ),
+#        ),
+#        partial(
+#            DeepAREstimator,
+#            distr_output=PiecewiseLinearOutput(8),
+#            trainer=Trainer(
+#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#            ),
+#        ),
+#        partial(
+#            MQCNNEstimator,
+#            use_feat_static_cat=use_feat_static_cat,
+#            cardinality=[6],
+#            trainer=Trainer(
+#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
+#            ),
+#        ),
+    
+    
+    ########################################################################################################
+    
+    estimator = partial(
+        DeepAREstimator,
+        num_cells=cfg['num_cells'],
+        num_layers=cfg['num_layers'],
+        use_feat_static_cat=True,
+        cardinality=[6],
+        trainer=Trainer(
+            epochs=cfg['max_epochs'],
+            num_batches_per_epoch=cfg['num_batches_per_epoch'],
+            learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
+            weight_decay=cfg['weight_decay']
+        ),
+    )
+    # catch exceptions that are happening during training to avoid failing the whole evaluation
+    try:
+        results = evaluate(config.dataset_name, estimator)
+    except Exception as e:
+        logger.warn('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
+        return {'loss': None, 'status': STATUS_FAIL}
 
+    logger.info(results)
+    return {'loss': results['MASE'], 'status': STATUS_OK}
+    
+def call_hyperopt():
+    space = {
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200]),
+            'num_layers'                 : hp.choice('num_layers', [1, 2, 3]),
 
+            'max_epochs'                 : hp.choice('max_epochs', [1000]),
+            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [25, 50, 100]),
+            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.5, 0.9),
+            'weight_decay'               : hp.loguniform('weight_decay', -19, -17),
+        }
+    
+    # Search MongoDB for best trial for exp_key:
+    # echo 'db.jobs.find({"exp_key" : "XXXX-YYYY-MM-DD", "result.status" : "ok"}).sort( { "result.loss": 1} ).limit(1).pretty()' | mongo hyperopt_db
+    if config.use_cluster:
+        exp_key = "%s_%s" % (str(date.today()), config.version)
+        logger.info("exp_key for this job is: %s" % exp_key)
+        trials = MongoTrials('mongo://heika:27017/%s/jobs' % config.dataset_name, exp_key=exp_key)
+        best = fmin(gluon_fcast, space, rstate=random.RandomState(config.rand_seed), algo=tpe.suggest, trials=trials, max_evals=config.max_evals, show_progressbar=False)
+    else:
+        best = fmin(gluon_fcast, space, rstate=random.RandomState(config.rand_seed), algo=tpe.suggest, max_evals=20, show_progressbar=False)
+        
+    params = space_eval(space, best)   
+    return(params)
+    
 if __name__ == "__main__":
-
-    results = []
-    for dataset_name in datasets:
-        for estimator in estimators:
-            # catch exceptions that are happening during training to avoid failing the whole evaluation
-            try:
-                results.append(evaluate(dataset_name, estimator))
-            except Exception as e:
-                print('Warning on line %d, exception:\n%s' % (exc_info()[-1].tb_lineno, str(e)))
-
-    df = pd.DataFrame(results)
-
-    sub_df = df[
-        [
-            "dataset",
-            "estimator",
-            "RMSE",
-#            "mean_wQuantileLoss",
-            "MASE",
-            "sMAPE",
-            "MSIS",
-        ]
-    ]
-
-    print(sub_df.to_string())
+    params = call_hyperopt()
+    logger.info("Best params: %s" % params)
