@@ -32,7 +32,7 @@ import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
 
-use_cluster = False
+use_cluster = True
 dataset_name = "m4_yearly"
    
 def gluon_fcast(cfg):
