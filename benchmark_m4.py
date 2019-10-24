@@ -22,6 +22,7 @@ from datetime import date
 from hyperopt import fmin, tpe, hp, space_eval, STATUS_FAIL, STATUS_OK
 from hyperopt.mongoexp import MongoTrials
 from functools import partial
+from os import environ
 import sys
 #from math import log
 
@@ -42,8 +43,13 @@ mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
 
 use_cluster = True
-dataset_name = "m4_yearly"
-   
+if "DATASET" in environ:
+    dataset_name = environ.get('DATASET')
+    logger.info("Using data set: %s" % dataset_name)
+else:
+    dataset_name = "m4_weekly"        
+    logger.warning("DATASET not set, using %s" % dataset_name)
+    
 def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
         dataset = get_dataset(dataset_name)
