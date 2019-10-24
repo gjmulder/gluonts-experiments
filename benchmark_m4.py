@@ -25,6 +25,15 @@ from functools import partial
 import sys
 #from math import log
 
+from gluonts.dataset.repository.datasets import get_dataset
+#from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
+from gluonts.evaluation import Evaluator
+from gluonts.evaluation.backtest import make_evaluation_predictions
+from gluonts.model.deepar import DeepAREstimator
+#from gluonts.model.seq2seq import MQCNNEstimator
+#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+from gluonts.trainer import Trainer
+    
 ########################################################################################################
   
 rand_seed = 42
@@ -35,16 +44,7 @@ np.random.seed(rand_seed)
 use_cluster = True
 dataset_name = "m4_yearly"
    
-def gluon_fcast(cfg):
-    from gluonts.dataset.repository.datasets import get_dataset
-    #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
-    from gluonts.evaluation import Evaluator
-    from gluonts.evaluation.backtest import make_evaluation_predictions
-    from gluonts.model.deepar import DeepAREstimator
-    #from gluonts.model.seq2seq import MQCNNEstimator
-    #from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
-    from gluonts.trainer import Trainer
-   
+def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
         dataset = get_dataset(dataset_name)
         estimator = estimator(
