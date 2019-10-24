@@ -15,40 +15,36 @@ basicConfig(level = log_level,
             format  = '%(asctime)s %(levelname)-8s %(module)-20s: %(message)s',
             datefmt ='%Y-%m-%d %H:%M:%S')
 logger = getLogger(__name__)
+max_evals = 100
 
-import mxnet as mx
 import numpy as np
+from datetime import date
+from hyperopt import fmin, tpe, hp, space_eval, STATUS_FAIL, STATUS_OK
+from hyperopt.mongoexp import MongoTrials
 from functools import partial
 import sys
 #from math import log
-from datetime import date
 
+########################################################################################################
+  
 rand_seed = 42
+import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
 
 use_cluster = False
 dataset_name = "m4_yearly"
-max_evals = 100
-
-########################################################################################################
-
-from gluonts.dataset.repository.datasets import get_dataset
-#from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
-from gluonts.evaluation import Evaluator
-from gluonts.evaluation.backtest import make_evaluation_predictions
-from gluonts.model.deepar import DeepAREstimator
-#from gluonts.model.seq2seq import MQCNNEstimator
-#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
-from gluonts.trainer import Trainer
-
-from hyperopt import fmin, tpe, hp, space_eval, STATUS_FAIL, STATUS_OK
-from hyperopt.mongoexp import MongoTrials
-
-########################################################################################################
-    
+   
 def gluon_fcast(cfg):
-
+    from gluonts.dataset.repository.datasets import get_dataset
+    #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
+    from gluonts.evaluation import Evaluator
+    from gluonts.evaluation.backtest import make_evaluation_predictions
+    from gluonts.model.deepar import DeepAREstimator
+    #from gluonts.model.seq2seq import MQCNNEstimator
+    #from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
+    from gluonts.trainer import Trainer
+   
     def evaluate(dataset_name, estimator):
         dataset = get_dataset(dataset_name)
         estimator = estimator(
