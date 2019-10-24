@@ -47,7 +47,7 @@ if "DATASET" in environ:
     logger.info("Using data set: %s" % dataset_name)
     use_cluster = True
 else:
-    dataset_name = "m4_quarterly"        
+    dataset_name = "m4_weekly"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
     
@@ -146,15 +146,18 @@ def gluon_fcast(cfg):
 # Daily: {'learning_rate_decay_factor': 0.575370116706172, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
 #         'num_cells': 200, 'num_layers': 2, 'weight_decay': 2.432055488706233e-08}
     
+# Daily: {'learning_rate_decay_factor': 0.5006305686152246, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
+#         'num_cells': 100, 'num_layers': 2, 'weight_decay': 3.946049025967661e-08}
+    
 def call_hyperopt():
     space = {
-            'num_cells'                  : hp.choice('num_cells', [200, 400, 800]),
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
             'num_layers'                 : hp.choice('num_layers', [1, 2, 3]),
 
             'max_epochs'                 : hp.choice('max_epochs', [5000]),
-            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [100, 200, 400]),
-            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.5, 0.7),
-            'weight_decay'               : hp.loguniform('weight_decay', -18, -17),
+            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [50, 100, 200]),
+            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.4, 0.6),
+            'weight_decay'               : hp.loguniform('weight_decay', -18, -16),
         }
     
     # Search MongoDB for best trial for exp_key:
