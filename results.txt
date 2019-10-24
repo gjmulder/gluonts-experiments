@@ -1,25 +1,5 @@
-Baseline:
-
-07:37:39          dataset                   estimator  MASE     sMAPE
-07:37:39 0      m4_hourly  SimpleFeedForwardEstimator   NaN  2.000000
-07:37:39 1      m4_hourly             DeepAREstimator   NaN  2.000000
-07:37:39 2      m4_hourly              MQCNNEstimator   NaN  1.377826
-07:37:39 3       m4_daily             DeepAREstimator   NaN  2.000000
-07:37:39 4       m4_daily              MQCNNEstimator   NaN  1.993697
-07:37:39 5      m4_weekly  SimpleFeedForwardEstimator   NaN  2.000000
-07:37:39 6      m4_weekly             DeepAREstimator   NaN  2.000000
-07:37:39 7      m4_weekly              MQCNNEstimator   NaN  1.971720
-07:37:39 8     m4_monthly  SimpleFeedForwardEstimator   NaN  2.000000
-07:37:39 9     m4_monthly             DeepAREstimator   NaN  2.000000
-07:37:39 10    m4_monthly              MQCNNEstimator   NaN  1.994186
-07:37:39 11  m4_quarterly  SimpleFeedForwardEstimator   NaN  2.000000
-07:37:39 12  m4_quarterly             DeepAREstimator   NaN  2.000000
-07:37:39 13  m4_quarterly              MQCNNEstimator   NaN  1.981241
-07:37:39 14     m4_yearly  SimpleFeedForwardEstimator   NaN  2.000000
-07:37:39 15     m4_yearly             DeepAREstimator   NaN  2.000000
-07:37:39 16     m4_yearly              MQCNNEstimator   NaN  1.924267
-
 mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/23/log"
+Commit message: "epochs = 5000, num_batches_per_epoch = 100, use_feat_static_cat = False, SimpleFeedForwardEstimator [100,100], DeepAREstimator [40,40], DeepAREstimator [500], MQCNNEstimator"
 
      m4_hourly.
      m4_hourly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      2.01 (occurred at epoch  3573)
@@ -44,8 +24,10 @@ mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/23/log
      m4_yearly.
      m4_yearly.             DeepARTrainingNetwork: Size: 13463, Final Loss:      5.28 (occurred at epoch  4959)
      m4_yearly.             DeepARTrainingNetwork: Size:1004023, Final Loss:      5.11 (occurred at epoch  3959)
-     m4_yearly.
+
+
 mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/25/log"
+Commit message: "epochs = 5000, num_batches_per_epoch = 100, use_feat_static_cat = True, cardinality=[6], SimpleFeedForwardEstimator [100,100], DeepAREstimator [40,40], DeepAREstimator [500], MQCNNEstimator"
 
      m4_hourly.
      m4_hourly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      2.08 (occurred at epoch  4757)
@@ -71,4 +53,27 @@ mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/25/log
      m4_yearly.             DeepARTrainingNetwork: Size: 13563, Final Loss:      5.26 (occurred at epoch  4515)
      m4_yearly.             DeepARTrainingNetwork: Size:1004123, Final Loss:      5.09 (occurred at epoch  4499)
      m4_yearly.
+
+mulderg@heika:~$ mxawk "/var/lib/jenkins/jobs/gluon-ts experiments/builds/26/log"
+Commit message: "epochs = 10000, num_batches_per_epoch = 100, use_feat_static_cat = False, SimpleFeedForwardEstimator [100,100], DeepAREstimator [40,40], DeepAREstimator [500], MQCNNEstimator, train+test"
+     m4_hourly.  SimpleFeedForwardTrainingNetwork: Size:490003, Final Loss:      3.05 (occurred at epoch  7358)
+     m4_hourly.             DeepARTrainingNetwork: Size: 27644, Final Loss:      1.99 (occurred at epoch  9150)
+     m4_hourly.             DeepARTrainingNetwork: Size:1101504, Final Loss:      1.52 (occurred at epoch  7229)
+     m4_hourly.     ForkingSeq2SeqTrainingNetwork: Size: 36489, Final Loss:     19.80 (occurred at epoch  6562)
+      m4_daily.  SimpleFeedForwardTrainingNetwork: Size:143203
+      m4_daily.             DeepARTrainingNetwork: Size: 25884
+      m4_daily.             DeepARTrainingNetwork: Size:1079504
+      m4_daily.     ForkingSeq2SeqTrainingNetwork: Size: 14729, Final Loss:     10.73 (occurred at epoch   737)
+     m4_weekly.  SimpleFeedForwardTrainingNetwork: Size:133003, Final Loss:      6.38 (occurred at epoch  9464)
+     m4_weekly.             DeepARTrainingNetwork: Size: 23804, Final Loss:      5.49 (occurred at epoch  9985)
+     m4_weekly.             DeepARTrainingNetwork: Size:1053504, Final Loss:      5.34 (occurred at epoch  9762)
+     m4_weekly.     ForkingSeq2SeqTrainingNetwork: Size: 14089, Final Loss:     24.26 (occurred at epoch  5191)
+    m4_monthly.  SimpleFeedForwardTrainingNetwork: Size:184003, Final Loss:      5.80 (occurred at epoch  8220)
+    m4_monthly.             DeepARTrainingNetwork: Size: 23324, Final Loss:      4.74 (occurred at epoch  8396)
+    m4_monthly.             DeepARTrainingNetwork: Size:1047504, Final Loss:      4.60 (occurred at epoch  8998)
+    m4_monthly.     ForkingSeq2SeqTrainingNetwork: Size: 17289, Final Loss:      8.98 (occurred at epoch  6337)
+  m4_quarterly.  SimpleFeedForwardTrainingNetwork: Size: 82003, Final Loss:      6.79 (occurred at epoch  8538)
+  m4_quarterly.             DeepARTrainingNetwork: Size: 22684, Final Loss:      5.88 (occurred at epoch  8392)
+  m4_quarterly.             DeepARTrainingNetwork: Size:1039504, Final Loss:      5.68 (occurred at epoch  9873)
+  m4_quarterly.     ForkingSeq2SeqTrainingNetwork: Size: 10889
 

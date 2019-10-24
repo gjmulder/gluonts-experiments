@@ -42,13 +42,14 @@ import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
 
-use_cluster = True
 if "DATASET" in environ:
     dataset_name = environ.get('DATASET')
     logger.info("Using data set: %s" % dataset_name)
+    use_cluster = True
 else:
-    dataset_name = "m4_weekly"        
-    logger.warning("DATASET not set, using %s" % dataset_name)
+    dataset_name = "m4_quarterly"        
+    logger.warning("DATASET not set, using %s" % dataset_name)    
+    use_cluster = False
     
 def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
@@ -137,10 +138,10 @@ def gluon_fcast(cfg):
         results = evaluate(dataset_name, estimator)
     except Exception as e:
         logger.warn('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
-        return {'loss': None, 'status': STATUS_FAIL}
+        return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg}
 
     logger.info(results)
-    return {'loss': results['MASE'], 'status': STATUS_OK}
+    return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg}
 
 # Daily: {'learning_rate_decay_factor': 0.575370116706172, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
 #         'num_cells': 200, 'num_layers': 2, 'weight_decay': 2.432055488706233e-08}
@@ -157,8 +158,8 @@ def call_hyperopt():
         }
     
     # Search MongoDB for best trial for exp_key:
-    # echo 'db.jobs.find({"exp_key" : "XXX", "result.status" : "ok"}).sort( { "result.loss": 1} ).limit(1).pretty()' | mongo --host heika hyperopt_db
-    # echo 'db.jobs.remove({"exp_key" : "XXX", "result.status" : "new"})' | mongo --host heika hyperopt_db
+    # echo 'db.jobs.find({"exp_key" : "XXX", "result.status" : "ok"}).sort( { "result.loss": 1} ).limit(1).pretty()' | mongo --host heika m4_daily
+    # echo 'db.jobs.remove({"exp_key" : "XXX", "result.status" : "new"})' | mongo --host heika
 
     if use_cluster:
         exp_key = "%s_%s" % (str(date.today()), version)
