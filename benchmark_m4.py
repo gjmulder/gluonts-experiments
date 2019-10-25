@@ -58,11 +58,13 @@ def gluon_fcast(cfg):
             prediction_length=dataset.metadata.prediction_length,
             freq=dataset.metadata.freq,
         )
-    
+#        estimator.ctx = mx.Context("gpu")
+        
         logger.info(f"Evaluating {estimator} on {dataset_name}")
     
         predictor = estimator.train(dataset.train)
-    
+#        predictor.ctx = mx.Context("gpu")
+        
         forecast_it, ts_it = make_evaluation_predictions(
             dataset.test, predictor=predictor, num_eval_samples=10
         )
@@ -128,9 +130,12 @@ def gluon_fcast(cfg):
             dropout_rate=cfg['dropout_rate'],
             use_feat_static_cat=True,
             cardinality=[6],
+            num_eval_samples=10,
             trainer=Trainer(
+#                mx.Context("gpu"),
                 epochs=cfg['max_epochs'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
+                batch_size=cfg['batch_size'],
                 learning_rate=cfg['learning_rate'],
                 learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
                 minimum_learning_rate=cfg['minimum_learning_rate'],
@@ -159,13 +164,14 @@ def gluon_fcast(cfg):
 
 def call_hyperopt():
     space = {
-            'max_epochs'                 : hp.choice('max_epochs', [2]),
+            'max_epochs'                 : hp.choice('max_epochs', [5000]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
-
+            'batch_size'                 : hp.choice('batch_size', [32]),
+            
             'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
             'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
 
-            'learning_rate'              : hp.uniform('learning_rate', 0.010, 0.005),
+            'learning_rate'              : hp.uniform('learning_rate', 0.005, 0.010),
             'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
             'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-05, 10e-05),
             'weight_decay'               : hp.loguniform('weight_decay', -17.5, -16.7),
@@ -180,7 +186,7 @@ def call_hyperopt():
         exp_key = "%s_%s" % (str(date.today()), version)
         logger.info("exp_key for this job is: %s" % exp_key)
         trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=200)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=150)
     else:
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, max_evals=5)
         
