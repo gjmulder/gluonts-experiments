@@ -135,7 +135,7 @@ def gluon_fcast(cfg):
 #                mx.Context("gpu"),
                 epochs=cfg['max_epochs'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
-                batch_size=cfg['batch_size'],
+#                batch_size=cfg['batch_size'],
                 learning_rate=cfg['learning_rate'],
                 learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
                 minimum_learning_rate=cfg['minimum_learning_rate'],
@@ -166,7 +166,7 @@ def call_hyperopt():
     space = {
             'max_epochs'                 : hp.choice('max_epochs', [5000]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
-            'batch_size'                 : hp.choice('batch_size', [32]),
+#            'batch_size'                 : hp.choice('batch_size', [32]),
             
             'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
             'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
