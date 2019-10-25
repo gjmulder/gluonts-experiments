@@ -15,7 +15,6 @@ basicConfig(level = log_level,
             format  = '%(asctime)s %(levelname)-8s %(module)-20s: %(message)s',
             datefmt ='%Y-%m-%d %H:%M:%S')
 logger = getLogger(__name__)
-max_evals = 100
 
 import numpy as np
 from datetime import date
@@ -47,7 +46,7 @@ if "DATASET" in environ:
     logger.info("Using data set: %s" % dataset_name)
     use_cluster = True
 else:
-    dataset_name = "m4_weekly"        
+    dataset_name = "m4_daily"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
     
@@ -119,25 +118,27 @@ def gluon_fcast(cfg):
     
     
     ########################################################################################################
-    
-    estimator = partial(
-        DeepAREstimator,
-        num_cells=cfg['num_cells'],
-        num_layers=cfg['num_layers'],
-        use_feat_static_cat=True,
-        cardinality=[6],
-        trainer=Trainer(
-            epochs=cfg['max_epochs'],
-            num_batches_per_epoch=cfg['num_batches_per_epoch'],
-            learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
-            weight_decay=cfg['weight_decay']
-        ),
-    )
     # catch exceptions that are happening during training to avoid failing the whole evaluation
-    try:
+    try:    
+        estimator = partial(
+            DeepAREstimator,
+            num_cells=cfg['num_cells'],
+            num_layers=cfg['num_layers'],
+            dropout_rate=cfg['dropout_rate'],
+            use_feat_static_cat=True,
+            cardinality=[6],
+            trainer=Trainer(
+                epochs=cfg['max_epochs'],
+                num_batches_per_epoch=cfg['num_batches_per_epoch'],
+                learning_rate=cfg['learning_rate'],
+                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
+                minimum_learning_rate=cfg['minimum_learning_rate'],
+                weight_decay=cfg['weight_decay']
+            ),
+        )
         results = evaluate(dataset_name, estimator)
     except Exception as e:
-        logger.warn('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
+        logger.warning('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
         return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg}
 
     logger.info(results)
@@ -148,16 +149,32 @@ def gluon_fcast(cfg):
     
 # Daily: {'learning_rate_decay_factor': 0.5006305686152246, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
 #         'num_cells': 100, 'num_layers': 2, 'weight_decay': 3.946049025967661e-08}
-    
+
+# Daily:
+#		"loss" : 3.2569833100061882,
+#		"status" : "ok",
+#		"cfg" : {
+#			"learning_rate_decay_factor" : 0.42720667608623236,
+#			"max_epochs" : 5000,
+#			"num_batches_per_epoch" : 50,
+#			"num_cells" : 200,
+#			"num_layers" : 3,
+#			"weight_decay" : 3.9297866406356674e-8
+#		}
+
 def call_hyperopt():
     space = {
-            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
-            'num_layers'                 : hp.choice('num_layers', [1, 2, 3]),
-
             'max_epochs'                 : hp.choice('max_epochs', [5000]),
-            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [50, 100, 200]),
-            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.4, 0.6),
-            'weight_decay'               : hp.loguniform('weight_decay', -18, -16),
+            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
+
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+            'num_layers'                 : hp.choice('num_layers', [2, 3, 4]),
+
+            'learning_rate'              : hp.uniform('learning_rate', 0.010, 0.005),
+            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
+            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-05, 10e-05),
+            'weight_decay'               : hp.loguniform('weight_decay', -17.5, -16.7),
+            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
         }
     
     # Search MongoDB for best trial for exp_key:
@@ -168,9 +185,9 @@ def call_hyperopt():
         exp_key = "%s_%s" % (str(date.today()), version)
         logger.info("exp_key for this job is: %s" % exp_key)
         trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, trials=trials, max_evals=max_evals, show_progressbar=False)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, trials=trials, max_evals=200, show_progressbar=False)
     else:
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, max_evals=20, show_progressbar=False)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, max_evals=5, show_progressbar=False)
         
     params = space_eval(space, best)   
     return(params)
