@@ -29,7 +29,8 @@ from gluonts.dataset.repository.datasets import get_dataset
 #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
-from gluonts.model.deepar import DeepAREstimator
+#from gluonts.model.deepar import DeepAREstimator
+from gluonts.model.deepstate import DeepStateEstimator
 #from gluonts.model.seq2seq import MQCNNEstimator
 #from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
@@ -63,7 +64,7 @@ def gluon_fcast(cfg):
         predictor = estimator.train(dataset.train)
     
         forecast_it, ts_it = make_evaluation_predictions(
-            dataset.test, predictor=predictor, num_eval_samples=100
+            dataset.test, predictor=predictor, num_eval_samples=10
         )
     
         agg_metrics, item_metrics = Evaluator()(
@@ -121,7 +122,7 @@ def gluon_fcast(cfg):
     # catch exceptions that are happening during training to avoid failing the whole evaluation
     try:    
         estimator = partial(
-            DeepAREstimator,
+            DeepStateEstimator,
             num_cells=cfg['num_cells'],
             num_layers=cfg['num_layers'],
             dropout_rate=cfg['dropout_rate'],
@@ -144,13 +145,7 @@ def gluon_fcast(cfg):
     logger.info(results)
     return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg}
 
-# Daily: {'learning_rate_decay_factor': 0.575370116706172, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
-#         'num_cells': 200, 'num_layers': 2, 'weight_decay': 2.432055488706233e-08}
-    
-# Daily: {'learning_rate_decay_factor': 0.5006305686152246, 'max_epochs': 1000, 'num_batches_per_epoch': 100,
-#         'num_cells': 100, 'num_layers': 2, 'weight_decay': 3.946049025967661e-08}
-
-# Daily:
+# Daily: DeepAREstimator
 #		"loss" : 3.2569833100061882,
 #		"status" : "ok",
 #		"cfg" : {
@@ -164,11 +159,11 @@ def gluon_fcast(cfg):
 
 def call_hyperopt():
     space = {
-            'max_epochs'                 : hp.choice('max_epochs', [5000]),
+            'max_epochs'                 : hp.choice('max_epochs', [2]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
 
             'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
-            'num_layers'                 : hp.choice('num_layers', [2, 3, 4]),
+            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
 
             'learning_rate'              : hp.uniform('learning_rate', 0.010, 0.005),
             'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
@@ -185,9 +180,9 @@ def call_hyperopt():
         exp_key = "%s_%s" % (str(date.today()), version)
         logger.info("exp_key for this job is: %s" % exp_key)
         trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, trials=trials, max_evals=200, show_progressbar=False)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=200)
     else:
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, max_evals=5, show_progressbar=False)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, max_evals=5)
         
     params = space_eval(space, best)   
     return(params)

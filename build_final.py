@@ -103,23 +103,6 @@ if __name__ == "__main__":
             ),
         )
         results = evaluate(dataset_name, estimator)
+        logger.info(results)
     except Exception as e:
         logger.warning('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
-
-    logger.info(results)
-
-#    df = pd.DataFrame(results)
-#
-#    sub_df = df[
-#        [
-#            "dataset",
-#            "estimator",
-#            "RMSE",
-#            "mean_wQuantileLoss",
-#            "MASE",
-#            "sMAPE",
-#            "MSIS",
-#        ]
-#    ]
-#
-#    print(sub_df.to_string())
