@@ -29,8 +29,8 @@ from gluonts.dataset.repository.datasets import get_dataset
 #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
-#from gluonts.model.deepar import DeepAREstimator
-from gluonts.model.deepstate import DeepStateEstimator
+from gluonts.model.deepar import DeepAREstimator
+#from gluonts.model.deepstate import DeepStateEstimator
 #from gluonts.model.seq2seq import MQCNNEstimator
 #from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
@@ -124,13 +124,13 @@ def gluon_fcast(cfg):
     # catch exceptions that are happening during training to avoid failing the whole evaluation
     try:    
         estimator = partial(
-            DeepStateEstimator,
+            DeepAREstimator,
             num_cells=cfg['num_cells'],
             num_layers=cfg['num_layers'],
             dropout_rate=cfg['dropout_rate'],
             use_feat_static_cat=True,
             cardinality=[6],
-            num_eval_samples=10,
+#            num_eval_samples=10,
             trainer=Trainer(
 #                mx.Context("gpu"),
                 epochs=cfg['max_epochs'],
