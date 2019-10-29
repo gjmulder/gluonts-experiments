@@ -45,7 +45,7 @@ if ("DATASET" in environ) and ("VERSION" in environ):
     logger.info("Using data set: %s" % dataset_name)
     
     version = environ.get("VERSION")
-    logger.info("Using  version: %s" % version)
+    logger.info("Using version : %s" % version)
     
     job_url = environ.get("BUILD_URL")
     use_cluster = True
@@ -195,7 +195,7 @@ def call_hyperopt():
     # echo 'db.jobs.remove({"exp_key" : "XXX", "result.status" : "new"})' | mongo --host heika
 
     if use_cluster:
-        exp_key = "%s_%s" % str(date.today())
+        exp_key = "%s" % str(date.today())
         logger.info("exp_key for this job is: %s" % exp_key)
         trials = MongoTrials('mongo://heika:27017/%s-%s/jobs' % (dataset_name, version), exp_key=exp_key)
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=50)
