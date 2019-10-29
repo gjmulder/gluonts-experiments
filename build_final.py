@@ -76,7 +76,7 @@ if __name__ == "__main__":
 			"learning_rate" : 0.008057677667662482,
 			"learning_rate_decay_factor" : 0.39481448324803753,
 			"max_epochs" : 5000,
-			"minimum_learning_rate" : 0.00009993770075059679,
+			"minimum_learning_rate" : 0.000009993770075059679,
 			"num_batches_per_epoch" : 60,
 			"num_cells" : 100,
 			"num_layers" : 2,

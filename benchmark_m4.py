@@ -29,8 +29,8 @@ from gluonts.dataset.repository.datasets import get_dataset
 #from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
-from gluonts.model.deepar import DeepAREstimator
-#from gluonts.model.deepstate import DeepStateEstimator
+#from gluonts.model.deepar import DeepAREstimator
+from gluonts.model.deepstate import DeepStateEstimator
 #from gluonts.model.seq2seq import MQCNNEstimator
 #from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
@@ -60,15 +60,15 @@ def gluon_fcast(cfg):
             prediction_length=dataset.metadata.prediction_length,
             freq=dataset.metadata.freq,
         )
-#        estimator.ctx = mx.Context("gpu")
+        estimator.ctx = mx.Context("cpu")
         
         logger.info(f"Evaluating {estimator} on {dataset_name}")
     
         predictor = estimator.train(dataset.train)
-#        predictor.ctx = mx.Context("gpu")
+        predictor.ctx = mx.Context("cpu")
         
         forecast_it, ts_it = make_evaluation_predictions(
-            dataset.test, predictor=predictor, num_eval_samples=10
+            dataset.test, predictor=predictor, num_eval_samples=3
         )
     
         agg_metrics, item_metrics = Evaluator()(
@@ -84,8 +84,8 @@ def gluon_fcast(cfg):
 
     ##########################################################################
     
-    if not use_cluster:
-        cfg['max_epochs'] = 2
+#    if not use_cluster:
+#        cfg['max_epochs'] = 2
         
     logger.info("Params: %s" % cfg)
 #    use_feat_static_cat = True
@@ -128,22 +128,22 @@ def gluon_fcast(cfg):
     # catch exceptions that are happening during training to avoid failing the whole evaluation
     try:    
         estimator = partial(
-            DeepAREstimator,
+            DeepStateEstimator,
             num_cells=cfg['num_cells'],
             num_layers=cfg['num_layers'],
-            dropout_rate=cfg['dropout_rate'],
+#            dropout_rate=cfg['dropout_rate'],
             use_feat_static_cat=True,
             cardinality=[6],
-#            num_eval_samples=10,
+            num_eval_samples=3,
             trainer=Trainer(
-#                mx.Context("gpu"),
+                mx.Context("cpu"),
                 epochs=cfg['max_epochs'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
 #                batch_size=cfg['batch_size'],
-                learning_rate=cfg['learning_rate'],
-                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
-                minimum_learning_rate=cfg['minimum_learning_rate'],
-                weight_decay=cfg['weight_decay']
+#                learning_rate=cfg['learning_rate'],
+#                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
+#                minimum_learning_rate=cfg['minimum_learning_rate'],
+#                weight_decay=cfg['weight_decay']
             ),
         )
         results = evaluate(dataset_name, estimator)
@@ -155,31 +155,32 @@ def gluon_fcast(cfg):
     return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg, 'job_url' : job_url}
 
 # Daily: DeepAREstimator
-#		"loss" : 3.2569833100061882,
-#		"status" : "ok",
-#		"cfg" : {
-#			"learning_rate_decay_factor" : 0.42720667608623236,
+#    cfg = {
+#			"dropout_rate" : 0.1275742856290955,
+#			"learning_rate" : 0.008057677667662482,
+#			"learning_rate_decay_factor" : 0.39481448324803753,
 #			"max_epochs" : 5000,
-#			"num_batches_per_epoch" : 50,
-#			"num_cells" : 200,
-#			"num_layers" : 3,
-#			"weight_decay" : 3.9297866406356674e-8
-#		}
+#			"minimum_learning_rate" : 0.00009993770075059679,
+#			"num_batches_per_epoch" : 60,
+#			"num_cells" : 100,
+#			"num_layers" : 2,
+#			"weight_decay" : 4.560107496512775e-8
+#    }
 
 def call_hyperopt():
     space = {
-            'max_epochs'                 : hp.choice('max_epochs', [5000]),
+            'max_epochs'                 : hp.choice('max_epochs', [101]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
 #            'batch_size'                 : hp.choice('batch_size', [32]),
             
-            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+            'num_cells'                  : hp.choice('num_cells', [50, 100]),
             'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
 
-            'learning_rate'              : hp.uniform('learning_rate', 0.005, 0.010),
-            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
-            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-05, 10e-05),
-            'weight_decay'               : hp.loguniform('weight_decay', -17.5, -16.7),
-            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
+#            'learning_rate'              : hp.uniform('learning_rate', 0.005, 0.010),
+#            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
+#            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-06, 1e-05),
+#            'weight_decay'               : hp.loguniform('weight_decay', -17.5, -16.7),
+#            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
         }
     
     # Search MongoDB for best trial for exp_key:
