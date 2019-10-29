@@ -191,7 +191,7 @@ def call_hyperopt():
         exp_key = "%s_%s" % (str(date.today()), version)
         logger.info("exp_key for this job is: %s" % exp_key)
         trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=150)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=50)
     else:
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, max_evals=5)
         
