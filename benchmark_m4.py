@@ -6,8 +6,6 @@ Created on Tue Oct 22 11:09:36 2019
 @author: mulderg
 """
 
-version = "0.1"
-
 from logging import basicConfig, getLogger
 #from logging import DEBUG as log_level
 from logging import INFO as log_level
@@ -42,16 +40,25 @@ import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
 
-if "DATASET" in environ:
-    dataset_name = environ.get('DATASET')
+if ("DATASET" in environ) and ("VERSION" in environ):
+    dataset_name = environ.get("DATASET")
     logger.info("Using data set: %s" % dataset_name)
+    
+    version = environ.get("VERSION")
+    logger.info("Using  version: %s" % version)
+    
+    job_url = environ.get("BUILD_URL")
     use_cluster = True
 else:
-    dataset_name = "m4_daily"        
-    logger.warning("DATASET not set, using %s" % dataset_name)    
+    dataset_name = "m4_daily"
+    logger.warning("DATASET not set, using: %s" % dataset_name) 
+
+    version = "test"
+    logger.warning("VERSION not set, using: %s" % version) 
+    
+    job_url = "test"
     use_cluster = False
 
-job_url = environ.get("BUILD_URL")
 
 def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
@@ -188,9 +195,9 @@ def call_hyperopt():
     # echo 'db.jobs.remove({"exp_key" : "XXX", "result.status" : "new"})' | mongo --host heika
 
     if use_cluster:
-        exp_key = "%s_%s" % (str(date.today()), version)
+        exp_key = "%s_%s" % str(date.today())
         logger.info("exp_key for this job is: %s" % exp_key)
-        trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
+        trials = MongoTrials('mongo://heika:27017/%s-%s/jobs' % (dataset_name, version), exp_key=exp_key)
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=50)
     else:
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, max_evals=5)
