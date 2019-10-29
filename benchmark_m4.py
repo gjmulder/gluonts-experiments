@@ -170,15 +170,15 @@ def call_hyperopt():
     space = {
             'max_epochs'                 : hp.choice('max_epochs', [5000]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
-#            'batch_size'                 : hp.choice('batch_size', [32]),
+            'batch_size'                 : hp.choice('batch_size', [32, 64]),
             
             'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
             'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
 
             'learning_rate'              : hp.uniform('learning_rate', 0.005, 0.010),
             'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
-            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-05, 10e-05),
-            'weight_decay'               : hp.loguniform('weight_decay', -17.5, -16.7),
+            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-06, 1e-05),
+            'weight_decay'               : hp.loguniform('weight_decay', -18, -16),
             'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
         }
     
