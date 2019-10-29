@@ -72,16 +72,17 @@ def evaluate(dataset_name, estimator):
 
 if __name__ == "__main__":
     cfg = {
-        "learning_rate_decay_factor" : 0.42720667608623236,
-        "max_epochs" : 5000,
-        "num_batches_per_epoch" : 50,
-        "num_cells" : 200,
-        "num_layers" : 3,
-        "weight_decay" : 3.9297866406356674e-8,
-        "dropout_rate" : 0.1,
-        "learning_rate" : 0.001,
-        "minimum_learning_rate" : 5e-05,
+			"dropout_rate" : 0.1275742856290955,
+			"learning_rate" : 0.008057677667662482,
+			"learning_rate_decay_factor" : 0.39481448324803753,
+			"max_epochs" : 5000,
+			"minimum_learning_rate" : 0.00009993770075059679,
+			"num_batches_per_epoch" : 60,
+			"num_cells" : 100,
+			"num_layers" : 2,
+			"weight_decay" : 4.560107496512775e-8
     }
+
     
     ########################################################################################################
     # catch exceptions that are happening during training to avoid failing the whole evaluation

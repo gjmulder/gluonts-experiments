@@ -50,7 +50,9 @@ else:
     dataset_name = "m4_daily"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
-    
+
+job_url = environ.get("BUILD_URL")
+
 def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
         dataset = get_dataset(dataset_name)
@@ -80,6 +82,8 @@ def gluon_fcast(cfg):
         eval_dict["estimator"] = type(estimator).__name__
         return eval_dict
 
+    ##########################################################################
+    
     if not use_cluster:
         cfg['max_epochs'] = 2
         
@@ -145,10 +149,10 @@ def gluon_fcast(cfg):
         results = evaluate(dataset_name, estimator)
     except Exception as e:
         logger.warning('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
-        return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg}
+        return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg, 'job_url' : job_url}
 
     logger.info(results)
-    return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg}
+    return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg, 'job_url' : job_url}
 
 # Daily: DeepAREstimator
 #		"loss" : 3.2569833100061882,
