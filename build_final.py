@@ -6,8 +6,6 @@ Created on Tue Oct 22 11:09:36 2019
 @author: mulderg
 """
 
-version = "0.1"
-
 from logging import basicConfig, getLogger
 #from logging import DEBUG as log_level
 from logging import INFO as log_level
@@ -19,91 +17,81 @@ logger = getLogger(__name__)
 import numpy as np
 from functools import partial
 from os import environ
-import sys
 
-import pprint
+import mxnet as mx
 
 from gluonts.dataset.repository.datasets import get_dataset
+from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
-from gluonts.model.deepar import DeepAREstimator
+from gluonts.model.deepstate import DeepStateEstimator
 from gluonts.trainer import Trainer
 
 rand_seed = 42
-import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
+
+########################################################################################################
 
 if "DATASET" in environ:
     dataset_name = environ.get('DATASET')
     logger.info("Using data set: %s" % dataset_name)
     use_cluster = True
 else:
-    dataset_name = "m4_daily"        
+    dataset_name = "m4_hourly"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
 
+if dataset_name == "m4_daily":
+    time_features = [DayOfWeek(), DayOfMonth(), MonthOfYear()]
+if dataset_name == "m4_hourly":
+    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+
+num_eval_samples = 100
+
+########################################################################################################
+
 def evaluate(dataset_name, estimator):
     dataset = get_dataset(dataset_name)
-    estimator = estimator(
-        prediction_length=dataset.metadata.prediction_length,
-        freq=dataset.metadata.freq,
-    )
+    estimator = estimator(prediction_length=dataset.metadata.prediction_length, freq=dataset.metadata.freq)
+    estimator.ctx = mx.Context("cpu")
 
-    print(f"evaluating {estimator} on {dataset}")
+    logger.info(f"evaluating {estimator} on {dataset}")
 
     predictor = estimator.train(dataset.train)
+    predictor.ctx = mx.Context("cpu")
 
-    forecast_it, ts_it = make_evaluation_predictions(
-        dataset.test, predictor=predictor, num_eval_samples=100
-    )
-
-    agg_metrics, item_metrics = Evaluator()(
-        ts_it, forecast_it, num_series=len(dataset.test)
-    )
-
-    pprint.pprint(agg_metrics)
-
+    forecast_it, ts_it = make_evaluation_predictions(dataset.test, predictor=predictor, num_eval_samples=num_eval_samples)
+    agg_metrics, item_metrics = Evaluator()(ts_it, forecast_it, num_series=len(dataset.test))
+    logger.info(agg_metrics)
     eval_dict = agg_metrics
     eval_dict["dataset"] = dataset_name
     eval_dict["estimator"] = type(estimator).__name__
     return eval_dict
 
-
 if __name__ == "__main__":
     cfg = {
-			"dropout_rate" : 0.1275742856290955,
-			"learning_rate" : 0.008057677667662482,
-			"learning_rate_decay_factor" : 0.39481448324803753,
-			"max_epochs" : 5000,
-			"minimum_learning_rate" : 0.000009993770075059679,
-			"num_batches_per_epoch" : 60,
-			"num_cells" : 100,
-			"num_layers" : 2,
-			"weight_decay" : 4.560107496512775e-8
+        "max_epochs" : 100,
+        "num_batches_per_epoch" : 60,
+        "num_cells" : 100,
+        "num_layers" : 2,
+        "add_trend" : False
     }
-
     
-    ########################################################################################################
-    # catch exceptions that are happening during training to avoid failing the whole evaluation
-    try:    
-        estimator = partial(
-            DeepAREstimator,
-            num_cells=cfg['num_cells'],
-            num_layers=cfg['num_layers'],
-            dropout_rate=cfg['dropout_rate'],
-            use_feat_static_cat=True,
-            cardinality=[6],
-            trainer=Trainer(
-                epochs=cfg['max_epochs'],
-                num_batches_per_epoch=cfg['num_batches_per_epoch'],
-                learning_rate=cfg['learning_rate'],
-                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
-                minimum_learning_rate=cfg['minimum_learning_rate'],
-                weight_decay=cfg['weight_decay']
-            ),
+    estimator = partial(
+        DeepStateEstimator,
+        num_cells=cfg['num_cells'],
+        num_layers=cfg['num_layers'],
+        use_feat_static_cat=True,
+        cardinality=[6],
+        add_trend=cfg['add_trend'],
+        time_features=time_features, 
+        num_eval_samples=num_eval_samples,
+        trainer=Trainer(
+            mx.Context("cpu"),
+            epochs=cfg['max_epochs'],
+            num_batches_per_epoch=cfg['num_batches_per_epoch'])
         )
-        results = evaluate(dataset_name, estimator)
-        logger.info(results)
-    except Exception as e:
-        logger.warning('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
+
+    results = evaluate(dataset_name, estimator)
+    logger.info(results)
