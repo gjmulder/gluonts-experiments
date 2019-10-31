@@ -21,7 +21,7 @@ from os import environ
 import mxnet as mx
 
 from gluonts.dataset.repository.datasets import get_dataset
-from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
+#from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepstate import DeepStateEstimator
@@ -38,7 +38,7 @@ if "DATASET" in environ:
     logger.info("Using data set: %s" % dataset_name)
     use_cluster = True
 else:
-    dataset_name = "m4_hourly"        
+    dataset_name = "m4_daily"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
 
@@ -71,7 +71,7 @@ def evaluate(dataset_name, estimator):
 
 if __name__ == "__main__":
     cfg = {
-        "max_epochs" : 20,
+        "max_epochs" : 1000,
         "num_batches_per_epoch" : 60,
         "num_cells" : 100,
         "num_layers" : 4,

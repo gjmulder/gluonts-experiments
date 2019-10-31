@@ -123,19 +123,6 @@ def gluon_fcast(cfg):
     logger.info(results)
     return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg, 'build_url' : environ.get("BUILD_URL")}
 
-# Daily: DeepAREstimator
-#    cfg = {
-#			"dropout_rate" : 0.1275742856290955,
-#			"learning_rate" : 0.008057677667662482,
-#			"learning_rate_decay_factor" : 0.39481448324803753,
-#			"max_epochs" : 5000,
-#			"minimum_learning_rate" : 0.00009993770075059679,
-#			"num_batches_per_epoch" : 60,
-#			"num_cells" : 100,
-#			"num_layers" : 2,
-#			"weight_decay" : 4.560107496512775e-8
-#    }
-
 def call_hyperopt():
     space = {
             'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
