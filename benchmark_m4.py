@@ -94,21 +94,25 @@ def gluon_fcast(cfg):
             DeepStateEstimator,
             num_cells=cfg['num_cells'],
             num_layers=cfg['num_layers'],
-#            dropout_rate=cfg['dropout_rate'],
+            add_trend=cfg['add_trend'],
+            dropout_rate=cfg['dropout_rate'],
+
             use_feat_static_cat=True,
             cardinality=[6],
-            add_trend=cfg['add_trend'],
 #            time_features=time_features, 
             num_eval_samples=num_eval_samples,
+
             trainer=Trainer(
                 mx.Context("cpu"),
                 epochs=cfg['max_epochs'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
-#                batch_size=cfg['batch_size'],
-#                learning_rate=cfg['learning_rate'],
-#                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
-#                minimum_learning_rate=cfg['minimum_learning_rate'],
-#                weight_decay=cfg['weight_decay']
+                batch_size=cfg['batch_size'],
+                patience = cfg['patience'],
+
+                learning_rate=cfg['learning_rate'],
+                learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
+                minimum_learning_rate=cfg['minimum_learning_rate'],
+                weight_decay=cfg['weight_decay']
             ))
         results = evaluate(dataset_name, estimator)
     except Exception as e:
@@ -133,19 +137,20 @@ def gluon_fcast(cfg):
 
 def call_hyperopt():
     space = {
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
+            'add_trend'                  : hp.choice('add_trend', [True, False]),
+            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
+
             'max_epochs'                 : hp.choice('max_epochs', [200]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
             'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
-            
-            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
-            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
+            'patience'                   : hp.choice('patience', [4, 8, 16, 32]),            
 
-            'add_trend'                  : hp.choice('add_trend', [True, False]),
             'learning_rate'              : hp.uniform('learning_rate', 0.0005, 0.0015),
             'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.1, 0.9),
             'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 01e-05, 10e-05),
             'weight_decay'               : hp.uniform('weight_decay', 0.5e-08, 5.0e-08),
-            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
         }
     
     # Search MongoDB for best trial for exp_key:
