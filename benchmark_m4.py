@@ -25,7 +25,7 @@ import sys
 import mxnet as mx
 
 from gluonts.dataset.repository.datasets import get_dataset
-from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
+#from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
 #from gluonts.time_feature.holiday import SpecialDateFeatureSet, CHRISTMAS_DAY, CHRISTMAS_EVE
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
@@ -55,11 +55,11 @@ else:
     
     use_cluster = False
 
-if dataset_name == "m4_daily":
-    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
-if dataset_name == "m4_hourly":
-#    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
-    time_features = [HourOfDay(), DayOfWeek()]
+#if dataset_name == "m4_daily":
+#    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#if dataset_name == "m4_hourly":
+##    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#    time_features = [HourOfDay(), DayOfWeek()]
 
 num_eval_samples = 1
 
@@ -97,7 +97,7 @@ def gluon_fcast(cfg):
             use_feat_static_cat=True,
             cardinality=[6],
             add_trend=cfg['add_trend'],
-            time_features=time_features, 
+#            time_features=time_features, 
             num_eval_samples=num_eval_samples,
             trainer=Trainer(
                 mx.Context("cpu"),
