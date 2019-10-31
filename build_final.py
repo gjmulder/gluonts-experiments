@@ -43,9 +43,10 @@ else:
     use_cluster = False
 
 if dataset_name == "m4_daily":
-    time_features = [DayOfWeek(), DayOfMonth(), MonthOfYear()]
+    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
 if dataset_name == "m4_hourly":
-    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+    time_features = [HourOfDay(), DayOfWeek()]
 
 num_eval_samples = 100
 
@@ -63,7 +64,6 @@ def evaluate(dataset_name, estimator):
 
     forecast_it, ts_it = make_evaluation_predictions(dataset.test, predictor=predictor, num_eval_samples=num_eval_samples)
     agg_metrics, item_metrics = Evaluator()(ts_it, forecast_it, num_series=len(dataset.test))
-    logger.info(agg_metrics)
     eval_dict = agg_metrics
     eval_dict["dataset"] = dataset_name
     eval_dict["estimator"] = type(estimator).__name__
@@ -71,10 +71,10 @@ def evaluate(dataset_name, estimator):
 
 if __name__ == "__main__":
     cfg = {
-        "max_epochs" : 100,
+        "max_epochs" : 20,
         "num_batches_per_epoch" : 60,
         "num_cells" : 100,
-        "num_layers" : 2,
+        "num_layers" : 4,
         "add_trend" : False
     }
     

@@ -47,7 +47,7 @@ if ("DATASET" in environ) and ("VERSION" in environ):
     
     use_cluster = True
 else:
-    dataset_name = "m4_daily"
+    dataset_name = "m4_hourly"
     logger.warning("DATASET not set, using: %s" % dataset_name) 
 
     version = "test"
@@ -56,9 +56,10 @@ else:
     use_cluster = False
 
 if dataset_name == "m4_daily":
-    time_features = [DayOfWeek(), DayOfMonth(), MonthOfYear()]
+    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
 if dataset_name == "m4_hourly":
-    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+    time_features = [HourOfDay(), DayOfWeek()]
 
 num_eval_samples = 1
 
@@ -131,12 +132,12 @@ def gluon_fcast(cfg):
 
 def call_hyperopt():
     space = {
-            'max_epochs'                 : hp.choice('max_epochs', [100]),
-            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70]),
+            'max_epochs'                 : hp.choice('max_epochs', [200]),
+            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
             'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
             
-            'num_cells'                  : hp.choice('num_cells', [50, 100]),
-            'num_layers'                 : hp.choice('num_layers', [1, 2, 3]),
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
 
             'add_trend'                  : hp.choice('add_trend', [True, False]),
             'learning_rate'              : hp.uniform('learning_rate', 0.0005, 0.0015),
