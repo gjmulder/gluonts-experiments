@@ -148,7 +148,7 @@ def call_hyperopt():
             'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
             'patience'                   : hp.choice('patience', [4, 8, 16, 32]),            
 
-            'learning_rate'              : hp.loguniform('learning_rate', log(0.0001), log(0.1)),
+            'learning_rate'              : hp.loguniform('learning_rate', log(1e-04), log(1e-01)),
             'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.1, 0.9),
             'minimum_learning_rate'      : hp.loguniform('minimum_learning_rate', log(1e-06), log(1e-04)),
             'weight_decay'               : hp.uniform('weight_decay', 0.5e-08, 5.0e-08),
