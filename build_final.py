@@ -77,7 +77,7 @@ if __name__ == "__main__":
 			"dropout_rate" : 0.08799143691059126,
 			"learning_rate" : 0.006253177588445521,
 			"learning_rate_decay_factor" : 0.40615719168948966,
-			"max_epochs" : 5000,
+			"max_epochs" : 15000,
 			"minimum_learning_rate" : 0.000008318475256730753,
 			"num_batches_per_epoch" : 60,
 			"num_cells" : 100,
