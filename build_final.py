@@ -42,11 +42,11 @@ else:
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
 
-if dataset_name == "m4_daily":
-    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
-if dataset_name == "m4_hourly":
-#    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
-    time_features = [HourOfDay(), DayOfWeek()]
+#if dataset_name == "m4_daily":
+#    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#if dataset_name == "m4_hourly":
+##    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#    time_features = [HourOfDay(), DayOfWeek()]
 
 num_eval_samples = 100
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         use_feat_static_cat=True,
         cardinality=[6],
         add_trend=cfg['add_trend'],
-        time_features=time_features, 
+#        time_features=time_features, 
         num_eval_samples=num_eval_samples,
         trainer=Trainer(
             mx.Context("cpu"),

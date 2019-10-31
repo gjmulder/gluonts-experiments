@@ -87,8 +87,7 @@ def gluon_fcast(cfg):
     
 #    if not use_cluster:
 #        cfg['max_epochs'] = 2     
-    logger.info(environ.get("BUILD_NUMBER"))
-    logger.info(environ.get("BUILD_TAG"))
+
     logger.info("Params: %s" % cfg)
     try:    
         estimator = partial(
