@@ -6,8 +6,6 @@ Created on Tue Oct 22 11:09:36 2019
 @author: mulderg
 """
 
-version = "0.1"
-
 from logging import basicConfig, getLogger
 #from logging import DEBUG as log_level
 from logging import INFO as log_level
@@ -23,60 +21,63 @@ from hyperopt.mongoexp import MongoTrials
 from functools import partial
 from os import environ
 import sys
-#from math import log
+
+import mxnet as mx
 
 from gluonts.dataset.repository.datasets import get_dataset
-#from gluonts.distribution.piecewise_linear import PiecewiseLinearOutput
+#from gluonts.time_feature import HourOfDay, DayOfWeek, DayOfMonth, DayOfYear, MonthOfYear
+#from gluonts.time_feature.holiday import SpecialDateFeatureSet, CHRISTMAS_DAY, CHRISTMAS_EVE
 from gluonts.evaluation import Evaluator
 from gluonts.evaluation.backtest import make_evaluation_predictions
 from gluonts.model.deepar import DeepAREstimator
-#from gluonts.model.deepstate import DeepStateEstimator
-#from gluonts.model.seq2seq import MQCNNEstimator
-#from gluonts.model.simple_feedforward import SimpleFeedForwardEstimator
 from gluonts.trainer import Trainer
-    
-########################################################################################################
-  
+
 rand_seed = 42
-import mxnet as mx
 mx.random.seed(rand_seed, ctx='all')
 np.random.seed(rand_seed)
+    
+########################################################################################################
 
-if "DATASET" in environ:
-    dataset_name = environ.get('DATASET')
+if ("DATASET" in environ) and ("VERSION" in environ):
+    dataset_name = environ.get("DATASET")
     logger.info("Using data set: %s" % dataset_name)
+    
+    version = environ.get("VERSION")
+    logger.info("Using version : %s" % version)
+    
     use_cluster = True
 else:
-    dataset_name = "m4_daily"        
-    logger.warning("DATASET not set, using %s" % dataset_name)    
+    dataset_name = "m4_hourly"
+    logger.warning("DATASET not set, using: %s" % dataset_name) 
+
+    version = "test"
+    logger.warning("VERSION not set, using: %s" % version)
+    
     use_cluster = False
 
-job_url = environ.get("BUILD_URL")
+#if dataset_name == "m4_daily":
+#    time_features = [DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#if dataset_name == "m4_hourly":
+##    time_features = [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear(), MonthOfYear()]
+#    time_features = [HourOfDay(), DayOfWeek()]
 
+num_eval_samples = 1
+
+########################################################################################################
+    
 def gluon_fcast(cfg):   
     def evaluate(dataset_name, estimator):
         dataset = get_dataset(dataset_name)
-        estimator = estimator(
-            prediction_length=dataset.metadata.prediction_length,
-            freq=dataset.metadata.freq,
-        )
-#        estimator.ctx = mx.Context("gpu")
+        
+        estimator = estimator(prediction_length=dataset.metadata.prediction_length, freq=dataset.metadata.freq)
+        estimator.ctx = mx.Context("gpu")
         
         logger.info(f"Evaluating {estimator} on {dataset_name}")
-    
         predictor = estimator.train(dataset.train)
-#        predictor.ctx = mx.Context("gpu")
+        predictor.ctx = mx.Context("gpu")
         
-        forecast_it, ts_it = make_evaluation_predictions(
-            dataset.test, predictor=predictor, num_eval_samples=10
-        )
-    
-        agg_metrics, item_metrics = Evaluator()(
-            ts_it, forecast_it, num_series=len(dataset.test)
-        )
-    
-    #    pprint.pprint(agg_metrics)
-    
+        forecast_it, ts_it = make_evaluation_predictions(dataset.test, predictor=predictor, num_eval_samples=num_eval_samples)
+        agg_metrics, item_metrics = Evaluator()(ts_it, forecast_it, num_series=len(dataset.test))
         eval_dict = agg_metrics
         eval_dict["dataset"] = dataset_name
         eval_dict["estimator"] = type(estimator).__name__
@@ -84,48 +85,10 @@ def gluon_fcast(cfg):
 
     ##########################################################################
     
-    if not use_cluster:
-        cfg['max_epochs'] = 2
-        
+#    if not use_cluster:
+#        cfg['max_epochs'] = 2     
+
     logger.info("Params: %s" % cfg)
-#    use_feat_static_cat = True
-#        partial(
-#            DeepAREstimator,
-#            use_feat_static_cat=use_feat_static_cat,
-#            cardinality=[6],
-#            trainer=Trainer(
-#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-#            ),
-#        ),
-#        partial(
-#            DeepAREstimator,
-#            num_cells=500,
-#            num_layers=1,
-#            use_feat_static_cat=use_feat_static_cat,
-#            cardinality=[6],
-#            trainer=Trainer(
-#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-#            ),
-#        ),
-#        partial(
-#            DeepAREstimator,
-#            distr_output=PiecewiseLinearOutput(8),
-#            trainer=Trainer(
-#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-#            ),
-#        ),
-#        partial(
-#            MQCNNEstimator,
-#            use_feat_static_cat=use_feat_static_cat,
-#            cardinality=[6],
-#            trainer=Trainer(
-#                epochs=epochs, num_batches_per_epoch=num_batches_per_epoch
-#            ),
-#        ),
-    
-    
-    ########################################################################################################
-    # catch exceptions that are happening during training to avoid failing the whole evaluation
     try:    
         estimator = partial(
             DeepAREstimator,
@@ -134,51 +97,59 @@ def gluon_fcast(cfg):
             dropout_rate=cfg['dropout_rate'],
             use_feat_static_cat=True,
             cardinality=[6],
-#            num_eval_samples=10,
+#            time_features=time_features, 
             trainer=Trainer(
-#                mx.Context("gpu"),
+                mx.Context("gpu"),
                 epochs=cfg['max_epochs'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
-#                batch_size=cfg['batch_size'],
+                batch_size=cfg['batch_size'],
+                
                 learning_rate=cfg['learning_rate'],
                 learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
                 minimum_learning_rate=cfg['minimum_learning_rate'],
                 weight_decay=cfg['weight_decay']
-            ),
-        )
+            ))
         results = evaluate(dataset_name, estimator)
     except Exception as e:
         logger.warning('Warning on line %d, exception: %s' % (sys.exc_info()[-1].tb_lineno, str(e)))
-        return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg, 'job_url' : job_url}
+        return {'loss': None, 'status': STATUS_FAIL, 'cfg' : cfg, 'build_url' : environ.get("BUILD_URL"), 'dataset': dataset_name}
 
     logger.info(results)
-    return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg, 'job_url' : job_url}
+    return {'loss': results['MASE'], 'status': STATUS_OK, 'cfg' : cfg, 'build_url' : environ.get("BUILD_URL"), 'dataset': dataset_name}
 
 # Daily: DeepAREstimator
-#		"loss" : 3.2569833100061882,
+#	"result" : {
+#		"loss" : 3.4650389502919756,
 #		"status" : "ok",
 #		"cfg" : {
-#			"learning_rate_decay_factor" : 0.42720667608623236,
+#			"batch_size" : 32,
+#			"dropout_rate" : 0.08799143691059126,
+#			"learning_rate" : 0.006253177588445521,
+#			"learning_rate_decay_factor" : 0.40615719168948966,
 #			"max_epochs" : 5000,
-#			"num_batches_per_epoch" : 50,
-#			"num_cells" : 200,
-#			"num_layers" : 3,
-#			"weight_decay" : 3.9297866406356674e-8
-#		}
+#			"minimum_learning_rate" : 0.000008318475256730753,
+#			"num_batches_per_epoch" : 60,
+#			"num_cells" : 100,
+#			"num_layers" : 4,
+#			"weight_decay" : 1.7618947010005315e-8
+#		},
+#		"job_url" : "http://heika:8080/job/hyperopt/16/"
+#	},
+
 
 def call_hyperopt():
     space = {
             'max_epochs'                 : hp.choice('max_epochs', [5000]),
-            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [30, 40, 50, 60]),
-            'batch_size'                 : hp.choice('batch_size', [32, 64]),
-            
-            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
-            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4]),
+            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
+            'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
 
-            'learning_rate'              : hp.uniform('learning_rate', 0.005, 0.010),
-            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.3, 0.5),
-            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 1e-06, 1e-05),
-            'weight_decay'               : hp.loguniform('weight_decay', -18, -16),
+            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
+
+            'learning_rate'              : hp.uniform('learning_rate', 0.0005, 0.0015),
+            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.1, 0.9),
+            'minimum_learning_rate'      : hp.uniform('minimum_learning_rate', 01e-05, 10e-05),
+            'weight_decay'               : hp.uniform('weight_decay', 0.5e-08, 5.0e-08),
             'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
         }
     
@@ -187,10 +158,10 @@ def call_hyperopt():
     # echo 'db.jobs.remove({"exp_key" : "XXX", "result.status" : "new"})' | mongo --host heika
 
     if use_cluster:
-        exp_key = "%s_%s" % (str(date.today()), version)
+        exp_key = "%s" % str(date.today())
         logger.info("exp_key for this job is: %s" % exp_key)
-        trials = MongoTrials('mongo://heika:27017/%s/jobs' % dataset_name, exp_key=exp_key)
-        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=150)
+        trials = MongoTrials('mongo://heika:27017/%s-%s/jobs' % (dataset_name, version), exp_key=exp_key)
+        best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, trials=trials, max_evals=200)
     else:
         best = fmin(gluon_fcast, space, rstate=np.random.RandomState(rand_seed), algo=tpe.suggest, show_progressbar=False, max_evals=5)
         
