@@ -82,7 +82,8 @@ if __name__ == "__main__":
 			"num_batches_per_epoch" : 60,
 			"num_cells" : 100,
 			"num_layers" : 4,
-			"weight_decay" : 1.7618947010005315e-8
+			"weight_decay" : 1.7618947010005315e-8,
+            "patience" : 50,
 	}
     
     estimator = partial(
@@ -98,6 +99,7 @@ if __name__ == "__main__":
             epochs=cfg['max_epochs'],
             num_batches_per_epoch=cfg['num_batches_per_epoch'],
             batch_size=cfg['batch_size'],
+            patience=cfg['patience'],
             
             learning_rate=cfg['learning_rate'],
             learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
