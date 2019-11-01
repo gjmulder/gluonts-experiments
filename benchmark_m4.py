@@ -130,7 +130,7 @@ def call_hyperopt():
             'add_trend'                  : hp.choice('add_trend', [False]),
             'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
 
-            'max_epochs'                 : hp.choice('max_epochs', [200]),
+            'max_epochs'                 : hp.choice('max_epochs', [500]),
             'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
             'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
             'patience'                   : hp.choice('patience', [4, 8, 16, 32]),            

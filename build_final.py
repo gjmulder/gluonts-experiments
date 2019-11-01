@@ -71,7 +71,7 @@ def evaluate(dataset_name, estimator):
 
 if __name__ == "__main__":
     cfg = {
-        "max_epochs" : 1000,
+        "max_epochs" : 200,
         "num_batches_per_epoch" : 60,
         "num_cells" : 100,
         "num_layers" : 4,
