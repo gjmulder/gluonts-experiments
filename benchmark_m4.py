@@ -102,9 +102,9 @@ def gluon_fcast(cfg):
             trainer=Trainer(
                 mx.Context("gpu"),
                 epochs=cfg['max_epochs'],
-                patience=cfg['patience'],
                 num_batches_per_epoch=cfg['num_batches_per_epoch'],
                 batch_size=cfg['batch_size'],
+                patience=cfg['patience'],
                 
                 learning_rate=cfg['learning_rate'],
                 learning_rate_decay_factor=cfg['learning_rate_decay_factor'],
@@ -141,20 +141,20 @@ def gluon_fcast(cfg):
 
 def call_hyperopt():
     space = {
-            'max_epochs'                 : hp.choice('max_epochs', [5000]),
-            'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
-            'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
-            'patience'                   : hp.choice('patience', [16, 32, 64, 128]),
-            
-            'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
-            'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
+        'num_cells'                  : hp.choice('num_cells', [50, 100, 200, 400]),
+        'num_layers'                 : hp.choice('num_layers', [1, 2, 3, 4, 5]),
+        'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
 
-            'learning_rate'              : hp.uniform('learning_rate', log(0.0001), log(0.1)),
-            'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.1, 0.9),
-            'minimum_learning_rate'      : hp.loguniform('minimum_learning_rate', log(1e-06), log(1e-04)),
-            'weight_decay'               : hp.uniform('weight_decay', 0.5e-08, 5.0e-08),
-            'dropout_rate'               : hp.uniform('dropout_rate', 0.05, 0.15),
-        }
+        'max_epochs'                 : hp.choice('max_epochs', [5000]),
+        'num_batches_per_epoch'      : hp.choice('num_batches_per_epoch', [40, 50, 60, 70, 80]),
+        'batch_size'                 : hp.choice('batch_size', [32, 64, 128]),
+        'patience'                   : hp.choice('patience', [16, 32, 64, 128]),
+        
+        'learning_rate'              : hp.uniform('learning_rate', log(1e-04), log(1e-01)),
+        'learning_rate_decay_factor' : hp.uniform('learning_rate_decay_factor', 0.1, 0.9),
+        'minimum_learning_rate'      : hp.loguniform('minimum_learning_rate', log(1e-06), log(1e-04)),
+        'weight_decay'               : hp.uniform('weight_decay', 0.5e-08, 5.0e-08),
+    }
     
     # Search MongoDB for best trial for exp_key:
     # echo 'db.jobs.find({"exp_key" : "XXX", "result.status" : "ok"}).sort( { "result.loss": 1} ).limit(1).pretty()' | mongo --host heika m4_daily

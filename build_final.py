@@ -77,7 +77,7 @@ if __name__ == "__main__":
 			"dropout_rate" : 0.08799143691059126,
 			"learning_rate" : 0.006253177588445521,
 			"learning_rate_decay_factor" : 0.40615719168948966,
-			"max_epochs" : 75000, # 1000 epochs/hour approx.
+			"max_epochs" : 60000, # 1000 epochs/hour approx.
 			"minimum_learning_rate" : 0.000008318475256730753,
 			"num_batches_per_epoch" : 60,
 			"num_cells" : 100,
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         num_layers=cfg['num_layers'],
         dropout_rate=cfg['dropout_rate'],
         use_feat_static_cat=True,
-        cardinality=[6],
+        cardinality=[4227, 6], # dataset.metadata.feat_static_cat[0].cardinality, dataset.metadata.feat_static_cat[1].cardinality
 #            time_features=time_features, 
         trainer=Trainer(
             mx.Context("gpu"),
