@@ -71,7 +71,7 @@ def evaluate(dataset_name, estimator):
 
 if __name__ == "__main__":
     cfg = {
-        "max_epochs" : 200,
+        "max_epochs" : 700,
         "num_batches_per_epoch" : 60,
         "num_cells" : 100,
         "num_layers" : 4,
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         num_cells=cfg['num_cells'],
         num_layers=cfg['num_layers'],
         use_feat_static_cat=True,
-        cardinality=[6],
+        cardinality=[4227, 6],
         add_trend=cfg['add_trend'],
 #        time_features=time_features, 
         num_eval_samples=num_eval_samples,
