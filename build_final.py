@@ -38,7 +38,7 @@ if "DATASET" in environ:
     logger.info("Using data set: %s" % dataset_name)
     use_cluster = True
 else:
-    dataset_name = "m4_daily"        
+    dataset_name = "m4_hourly"        
     logger.warning("DATASET not set, using %s" % dataset_name)    
     use_cluster = False
 
@@ -70,22 +70,23 @@ def evaluate(dataset_name, estimator):
     return eval_dict
 
 if __name__ == "__main__":
-#		"loss" : 3.4650389502919756,
+#		"loss" : 0.9078119258939598,
 #		"status" : "ok",
+#		"dataset" : "m4_hourly"
     cfg = {
-            "batch_size" : 32,
-			"dropout_rate" : 0.08799143691059126,
-			"learning_rate" : 0.006253177588445521,
-			"learning_rate_decay_factor" : 0.40615719168948966,
-			"max_epochs" : 60000, # 1000 epochs/hour approx.
-			"minimum_learning_rate" : 0.000008318475256730753,
-			"num_batches_per_epoch" : 60,
-			"num_cells" : 100,
-			"num_layers" : 4,
-			"weight_decay" : 1.7618947010005315e-8,
-            "patience" : 50,
-	}
-    
+            "batch_size" : 128,
+            "dropout_rate" : 0.11487556921918471,
+            "learning_rate" : 0.0011531060046036214,
+            "learning_rate_decay_factor" : 0.45070831883744666,
+            "max_epochs" : 5000,
+            "minimum_learning_rate" : 0.000053239690820732165,
+            "num_batches_per_epoch" : 70,
+            "num_cells" : 400,
+            "num_layers" : 3,
+            "weight_decay" : 4.3229937548659974e-8,
+            "patience" : 10,
+    }
+
     estimator = partial(
         DeepAREstimator,
         num_cells=cfg['num_cells'],
