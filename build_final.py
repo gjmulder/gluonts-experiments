@@ -74,17 +74,17 @@ if __name__ == "__main__":
 #		"status" : "ok",
 #		"dataset" : "m4_hourly"
     cfg = {
-            "batch_size" : 128,
-            "dropout_rate" : 0.11487556921918471,
-            "learning_rate" : 0.0011531060046036214,
-            "learning_rate_decay_factor" : 0.45070831883744666,
-            "max_epochs" : 5000,
-            "minimum_learning_rate" : 0.000053239690820732165,
-            "num_batches_per_epoch" : 70,
-            "num_cells" : 400,
-            "num_layers" : 3,
-            "weight_decay" : 4.3229937548659974e-8,
-            "patience" : 10,
+        "batch_size" : 128,
+        "dropout_rate" : 0.09882390968019725,
+        "learning_rate" : 0.0014549012631534695,
+        "learning_rate_decay_factor" : 0.5771055092958736,
+        "max_epochs" : 20000,
+        "minimum_learning_rate" : 0.00005947363581025246,
+        "num_batches_per_epoch" : 70,
+        "num_cells" : 400,
+        "num_layers" : 5,
+        "weight_decay" : 4.336089313851135e-8,
+        "patience" : 50,
     }
 
     estimator = partial(
